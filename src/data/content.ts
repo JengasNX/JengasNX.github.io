@@ -15,14 +15,15 @@ export const SITE = {
 } as const;
 
 /**
- * Contact channels.
- * ⚠️ Replace YOUR_TELEGRAM / YOUR_DISCORD / YOUR_EMAIL with real values.
+ * Contact channels — real links.
+ * discord: the numeric profile ID is displayed, the deep link opens the profile.
  */
 export const CONTACTS = {
   github: 'https://github.com/JengasAdmin',
-  telegram: 'YOUR_TELEGRAM', // example: https://t.me/your_nickname
-  discord: 'YOUR_DISCORD', // example: your_nickname#0000
-  email: 'YOUR_EMAIL', // example: you@example.com
+  telegram: 'https://t.me/nudnx',
+  discord: '1226424162307014688',
+  discordUrl: 'https://discord.com/users/1226424162307014688',
+  email: 'helxij9282@gmail.com',
   /** Placeholders are not turned into links automatically. */
   isPlaceholder: (value: string) => value.startsWith('YOUR_'),
 } as const;

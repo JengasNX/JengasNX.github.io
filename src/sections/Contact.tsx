@@ -75,7 +75,7 @@ export default function Contact() {
       label: t.contact.links.discord,
       value: CONTACTS.discord,
       icon: <AtSign className="h-4 w-4" />,
-      external: false,
+      external: true,
     },
     {
       key: 'email' as const,
@@ -85,6 +85,8 @@ export default function Contact() {
       external: false,
     },
   ];
+
+  const anyPlaceholder = channels.some((c) => CONTACTS.isPlaceholder(c.value));
 
   const notice =
     status === 'success'
@@ -110,11 +112,12 @@ export default function Contact() {
             <ul className="space-y-3">
               {channels.map((ch) => {
                 const placeholder = CONTACTS.isPlaceholder(ch.value);
-                const href =
-                  placeholder || !ch.external
-                    ? undefined
-                    : ch.key === 'email'
-                      ? `mailto:${ch.value}`
+                const href = placeholder
+                  ? undefined
+                  : ch.key === 'email'
+                    ? `mailto:${ch.value}`
+                    : ch.key === 'discord'
+                      ? CONTACTS.discordUrl
                       : ch.value;
 
                 const content = (
@@ -148,7 +151,7 @@ export default function Contact() {
                     {href ? (
                       <a
                         href={href}
-                        target={ch.key === 'github' || ch.key === 'telegram' ? '_blank' : undefined}
+                        target={ch.external ? '_blank' : undefined}
                         rel="noopener noreferrer"
                         className="glass group flex items-center gap-4 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-400/40"
                       >
@@ -164,10 +167,12 @@ export default function Contact() {
               })}
             </ul>
 
-            <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-400 dark:text-slate-500">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-              {t.contact.placeholderNote}
-            </p>
+            {anyPlaceholder && (
+              <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-400 dark:text-slate-500">
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+                {t.contact.placeholderNote}
+              </p>
+            )}
           </Reveal>
 
           {/* Form */}
