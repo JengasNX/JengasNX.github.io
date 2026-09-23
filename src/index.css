@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ base */
+:root {
+  color-scheme: light dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-slate-800 antialiased;
+  overflow-x: hidden;
+}
+
+.dark body {
+  @apply bg-ink-950 text-slate-200;
+}
+
+/* Anchor offset for the sticky navbar. */
+section[id] {
+  scroll-margin-top: 84px;
+}
+
+::selection {
+  @apply bg-indigo-500/30 text-white;
+}
+
+/* Keyboard focus is always visible. */
+:focus-visible {
+  outline: 2px solid theme('colors.indigo.500');
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Scrollbar (desktop only). */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-ink-600;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-ink-700;
+  }
+}
+
+/* ------------------------------------------------------------- components */
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  .glass {
+    @apply border border-slate-200/80 bg-white/70 backdrop-blur-xl dark:border-white/5 dark:bg-white/[0.03];
+  }
+
+  .card-hover {
+    @apply transition-transform duration-300 ease-out will-change-transform hover:-translate-y-1.5;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-indigo-500 via-violet-500 to-blue-500 bg-clip-text text-transparent;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500 dark:text-indigo-400;
+  }
+
+  /* Subtle grid background used by the hero. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(99 102 241 / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(99 102 241 / 0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 100%);
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-indigo-500/40 hover:brightness-110 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 hover:border-slate-400 hover:bg-slate-100 active:scale-[0.98] dark:border-white/15 dark:text-slate-200 dark:hover:border-white/30 dark:hover:bg-white/5;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:placeholder:text-slate-500;
+  }
+}
+
+/* --------------------------------------------------------------- reveals */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------------------------------------------------- README markdown body */
+.md-body {
+  @apply text-sm leading-7 text-slate-600 dark:text-slate-300;
+}
+.md-body h1,
+.md-body h2 {
+  @apply mt-6 mb-3 border-b border-slate-200 pb-2 text-xl font-bold text-slate-900 dark:border-white/10 dark:text-white;
+}
+.md-body h3,
+.md-body h4 {
+  @apply mt-5 mb-2 text-lg font-semibold text-slate-900 dark:text-white;
+}
+.md-body p {
+  @apply my-3;
+}
+.md-body a {
+  @apply font-medium text-indigo-500 underline underline-offset-2 hover:text-indigo-400 dark:text-indigo-400;
+}
+.md-body ul,
+.md-body ol {
+  @apply my-3 list-disc space-y-1 pl-6;
+}
+.md-body ol {
+  @apply list-decimal;
+}
+.md-body code {
+  @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.85em] text-indigo-600 dark:bg-white/10 dark:text-indigo-300;
+}
+.md-body pre {
+  @apply my-4 overflow-x-auto rounded-xl bg-ink-900 p-4 text-xs leading-6 text-slate-200 dark:bg-black/50;
+}
+.md-body pre code {
+  @apply bg-transparent p-0 text-inherit;
+}
+.md-body blockquote {
+  @apply my-4 border-l-4 border-indigo-500/50 pl-4 italic text-slate-500 dark:text-slate-400;
+}
+.md-body table {
+  @apply my-4 w-full overflow-hidden rounded-xl border border-slate-200 text-sm dark:border-white/10;
+}
+.md-body th,
+.md-body td {
+  @apply border-b border-slate-200 px-3 py-2 text-left dark:border-white/10;
+}
+.md-body th {
+  @apply bg-slate-50 font-semibold text-slate-900 dark:bg-white/5 dark:text-white;
+}
+.md-body hr {
+  @apply my-6 border-slate-200 dark:border-white/10;
+}
+.md-body img {
+  @apply my-3 rounded-xl;
+}
+.md-body strong {
+  @apply font-semibold text-slate-800 dark:text-slate-100;
+}
+
+/* --------------------------------------------- accessibility / perf guard */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

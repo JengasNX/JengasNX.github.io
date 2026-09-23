@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050507" />
+
+    <title>JengasAdmin — Full Stack Developer</title>
+    <meta
+      name="description"
+      content="Вячеслав — Full Stack Developer. Web development, digital products and open-source projects."
+    />
+    <link rel="canonical" href="https://jengasadmin.github.io/" />
+    <meta name="author" content="JengasAdmin" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="JengasAdmin Portfolio" />
+    <meta property="og:title" content="JengasAdmin — Full Stack Developer" />
+    <meta
+      property="og:description"
+      content="Вячеслав — Full Stack Developer. Web development, digital products and open-source projects."
+    />
+    <meta property="og:url" content="https://jengasadmin.github.io/" />
+    <meta
+      property="og:image"
+      content="https://avatars.githubusercontent.com/u/332267310?v=4"
+    />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="JengasAdmin — Full Stack Developer" />
+    <meta
+      name="twitter:description"
+      content="Вячеслав — Full Stack Developer. Web development, digital products and open-source projects."
+    />
+    <meta
+      name="twitter:image"
+      content="https://avatars.githubusercontent.com/u/332267310?v=4"
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="preconnect" href="https://api.github.com" />
+    <link rel="preconnect" href="https://avatars.githubusercontent.com" />
+    <link rel="preconnect" href="https://opengraph.githubassets.com" />
+
+    <script>
+      // Apply saved theme before first paint to avoid a flash of wrong colors.
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          var el = document.documentElement;
+          if (t === 'light') el.classList.remove('dark');
+          else el.classList.add('dark');
+          var l = localStorage.getItem('locale');
+          if (l) el.lang = l;
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
