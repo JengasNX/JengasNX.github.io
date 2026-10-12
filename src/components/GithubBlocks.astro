@@ -1,0 +1,325 @@
+---
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+import { getDict, type Locale } from '../i18n';
+import { SITE } from '../data/site';
+import { fill, formatClock } from '../lib/format';
+import { getFeatured } from '../lib/github/service';
+import type { GithubSnapshot, RepoCategory } from '../lib/github/types';
+import {
+  filterSortProjects,
+  renderFeatured,
+  renderSkills,
+  renderProjectsGrid,
+  renderStats,
+  type RenderCtx,
+} from '../lib/render';
+
+interface Props {
+  lang: Locale;
+  snapshot: GithubSnapshot;
+}
+
+const { lang, snapshot } = Astro.props;
+const t = getDict(lang);
+
+const ctx: RenderCtx = { lang, t, username: SITE.username };
+const projects = snapshot.projects;
+const featured = getFeatured(projects, 3);
+
+const categories = [...new Set(projects.map((p) => p.tech.category))] as RepoCategory[];
+const categoryChips = [
+  { key: 'all', label: t.projects.filterAll },
+  ...categories.map((key) => ({ key, label: t.projects.categories[key] })),
+];
+
+const payload = JSON.stringify({
+  lang,
+  profile: snapshot.profile,
+  stats: snapshot.stats,
+  projects,
+  fetchedAt: snapshot.fetchedAt,
+}).replace(/</g, '\\u003c');
+
+const updatedNote = snapshot.fetchedAt
+  ? fill(t.projects.updatedAt, { time: formatClock(snapshot.fetchedAt, lang) })
+  : t.projects.updated;
+---
+
+<!-- =============== 02 · skills =============== -->
+<Section id="skills">
+  <SectionHeading index={t.skills.index} title={t.skills.title} subtitle={t.skills.subtitle} />
+  <div id="skills-panel" class="mt-10 reveal" set:html={renderSkills(projects, ctx)} />
+</Section>
+
+<!-- =============== 03 · projects =============== -->
+<Section id="projects">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <SectionHeading
+      index={t.projects.index}
+      title={t.projects.title}
+      subtitle={t.projects.subtitle}
+    />
+    <div class="flex flex-col items-start gap-2 reveal sm:items-end">
+      <button type="button" id="project-refresh" class="btn btn-ghost btn-sm">
+        <span data-refresh-label>{t.projects.refresh}</span>
+      </button>
+      <span id="gh-updated" class="mono text-[0.7rem] text-faint">{updatedNote}</span>
+    </div>
+  </div>
+
+  {
+    featured.length > 0 && (
+      <div class="mt-12">
+        <div class="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+          <span class="label">{t.projects.featured}</span>
+          <span class="max-w-2xl text-xs leading-relaxed text-faint">
+            {t.projects.featuredNote}
+          </span>
+        </div>
+        <div id="featured-grid" class="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Fragment set:html={renderFeatured(featured, ctx)} />
+        </div>
+      </div>
+    )
+  }
+
+  <div class="mt-14">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <span class="label">{t.projects.all}</span>
+      <span id="projects-count" class="mono text-xs text-faint">
+        {fill(t.projects.count, { n: filterSortProjects(projects).length })}
+      </span>
+    </div>
+
+    <div class="mt-5 flex flex-col gap-4 lg:flex-row lg:items-center">
+      <div class="relative flex-1">
+        <input
+          type="search"
+          id="project-search"
+          class="field pl-10"
+          placeholder={t.projects.search}
+          aria-label={t.projects.search}
+          autocomplete="off"
+        />
+        <svg
+          class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-faint"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+      </div>
+
+      <div class="flex flex-wrap gap-2" role="group" aria-label={t.projects.filters}>
+        {
+          categoryChips.map((chip, i) => (
+            <button
+              type="button"
+              class="chip"
+              data-category={chip.key}
+              data-active={i === 0 ? 'true' : 'false'}
+            >
+              {chip.label}
+            </button>
+          ))
+        }
+      </div>
+
+      <select id="project-sort" class="field field-select lg:w-56" aria-label={t.projects.sort}>
+        <option value="updated">{t.projects.sortUpdated}</option>
+        <option value="created">{t.projects.sortCreated}</option>
+        <option value="stars">{t.projects.sortStars}</option>
+        <option value="name">{t.projects.sortName}</option>
+      </select>
+    </div>
+
+    <div id="projects-grid" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <Fragment set:html={renderProjectsGrid(filterSortProjects(projects), ctx)} />
+    </div>
+
+    <p class="mt-6 text-xs leading-relaxed text-faint">
+      {t.projects.featuredNote}
+    </p>
+  </div>
+</Section>
+
+<!-- =============== 04 · github stats =============== -->
+<Section id="github">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <SectionHeading index={t.githubSection.index} title={t.githubSection.title} subtitle={t.githubSection.subtitle} />
+    <a
+      href={SITE.githubUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn btn-ghost btn-sm reveal"
+    >
+      {t.githubSection.open} ↗
+    </a>
+  </div>
+
+  <div id="stats-panel" class="mt-10 flex flex-col gap-4 reveal">
+    <Fragment set:html={renderStats(snapshot.profile, snapshot.stats, ctx)} />
+  </div>
+
+  <p class="mt-6 max-w-3xl text-xs leading-relaxed text-faint">
+    {t.githubSection.note}
+  </p>
+</Section>
+
+<script type="application/json" id="gh-data" set:html={payload}></script>
+
+<script>
+  import { getDict, type Locale } from '../i18n';
+  import {
+    buildStats,
+    getFeatured,
+    getProfile,
+    getProjects,
+    getReadme,
+  } from '../lib/github/service';
+  import { renderMarkdown } from '../lib/markdown';
+  import { fill, formatClock } from '../lib/format';
+  import {
+    filterSortProjects,
+    renderFeatured,
+    renderProjectsGrid,
+    renderSkills,
+    renderStats,
+    type RenderCtx,
+  } from '../lib/render';
+
+  interface Payload {
+    lang: Locale;
+    profile: Awaited<ReturnType<typeof getProfile>> | null;
+    stats: ReturnType<typeof buildStats> | null;
+    projects: Awaited<ReturnType<typeof getProjects>>;
+    fetchedAt: number;
+  }
+
+  const dataEl = document.getElementById('gh-data');
+  const grid = document.getElementById('projects-grid');
+  const featuredGrid = document.getElementById('featured-grid');
+  const skillsPanel = document.getElementById('skills-panel');
+  const statsPanel = document.getElementById('stats-panel');
+  const countEl = document.getElementById('projects-count');
+  const updatedEl = document.getElementById('gh-updated');
+  const searchEl = document.getElementById('project-search') as HTMLInputElement | null;
+  const sortEl = document.getElementById('project-sort') as HTMLSelectElement | null;
+  const refreshBtn = document.getElementById('project-refresh') as HTMLButtonElement | null;
+  const categoryBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-category]')];
+
+  if (dataEl && grid && searchEl && sortEl && refreshBtn) {
+    const data = JSON.parse(dataEl.textContent ?? '{}') as Payload;
+    const t = getDict(data.lang).projects;
+    const ctx: RenderCtx = { lang: data.lang, t: getDict(data.lang), username: 'JengasAdmin' };
+
+    const state = {
+      query: '',
+      category: 'all',
+      sort: 'updated' as 'updated' | 'created' | 'stars' | 'name',
+      projects: data.projects,
+      profile: data.profile,
+      stats: data.stats,
+    };
+
+    const paint = () => {
+      const list = filterSortProjects(state.projects, state);
+      grid!.innerHTML = renderProjectsGrid(list, ctx);
+      if (countEl) countEl.textContent = fill(t.count, { n: list.length });
+    };
+
+    /* ---- toolbar ---- */
+    searchEl.addEventListener('input', () => {
+      state.query = searchEl.value;
+      paint();
+    });
+
+    sortEl.addEventListener('change', () => {
+      state.sort = sortEl.value as typeof state.sort;
+      paint();
+    });
+
+    categoryBtns.forEach((btn) =>
+      btn.addEventListener('click', () => {
+        state.category = btn.dataset.category ?? 'all';
+        categoryBtns.forEach((b) =>
+          b.setAttribute('data-active', String(b === btn)),
+        );
+        paint();
+      }),
+    );
+
+    /* ---- refresh: pull fresh data from GitHub and repaint everything ---- */
+    refreshBtn.addEventListener('click', async () => {
+      const label = refreshBtn.querySelector<HTMLElement>('[data-refresh-label]');
+      refreshBtn.disabled = true;
+      if (label) label.textContent = t.refreshing;
+
+      try {
+        const [profile, projects] = await Promise.all([getProfile(), getProjects()]);
+        const stats = buildStats(profile, projects);
+        state.projects = projects;
+        state.profile = profile;
+        state.stats = stats;
+
+        if (skillsPanel) skillsPanel.innerHTML = renderSkills(projects, ctx);
+        if (statsPanel) statsPanel.innerHTML = renderStats(profile, stats, ctx);
+        if (featuredGrid) featuredGrid.innerHTML = renderFeatured(getFeatured(projects, 3), ctx);
+        paint();
+
+        if (updatedEl) {
+          updatedEl.textContent = fill(t.updatedAt, {
+            time: formatClock(Date.now(), ctx.lang),
+          });
+        }
+      } catch {
+        if (updatedEl) updatedEl.textContent = t.error;
+      } finally {
+        refreshBtn.disabled = false;
+        if (label) label.textContent = t.refresh;
+      }
+    });
+
+    /* ---- expand details + lazy README ---- */
+    const loadReadme = async (card: HTMLElement, repo: string) => {
+      const host = card.querySelector<HTMLElement>(`[data-readme="${CSS.escape(repo)}"]`);
+      const project = state.projects.find((p) => p.name === repo);
+      if (!host || !project || host.dataset.loaded === 'true') return;
+
+      host.dataset.loaded = 'true';
+      if (!project.hasReadme) return; // template already renders "no README"
+
+      host.innerHTML = `<div class="label-dim">${t.readmeLoading}</div>`;
+      try {
+        const raw = await getReadme(repo);
+        host.innerHTML = `<div class="prose-terminal text-sm">${renderMarkdown(raw)}</div>`;
+      } catch {
+        host.dataset.loaded = 'false';
+        host.innerHTML = `<div class="label-dim">${t.error}</div>`;
+      }
+    };
+
+    document.addEventListener('click', (event) => {
+      const btn = (event.target as HTMLElement).closest<HTMLElement>('[data-toggle]');
+      if (!btn) return;
+
+      const repo = btn.dataset.toggle ?? '';
+      const card = btn.closest<HTMLElement>('[data-project]');
+      const details = card?.querySelector<HTMLElement>('.project-details');
+      if (!card || !details) return;
+
+      const open = details.dataset.open !== 'true';
+      details.dataset.open = String(open);
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? `${t.hideDetails} −` : `${t.details} +`;
+
+      if (open) void loadReadme(card, repo);
+    });
+  }
+</script>

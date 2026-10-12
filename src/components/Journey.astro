@@ -1,0 +1,48 @@
+---
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+import { getDict, type Locale } from '../i18n';
+import { formatMonthYear } from '../lib/format';
+import type { Project } from '../lib/github/types';
+
+interface Props {
+  lang: Locale;
+  projects: Project[];
+}
+
+const { lang, projects } = Astro.props;
+const t = getDict(lang);
+
+const oldest = projects.length
+  ? [...projects].sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at))[0]
+  : null;
+---
+
+<Section id="journey">
+  <SectionHeading index={t.journey.index} title={t.journey.title} subtitle={t.journey.subtitle} />
+
+  <div class="mt-12 grid gap-4 md:grid-cols-3">
+    {
+      t.journey.steps.map((step, i) => (
+        <div class="glass glass-hover relative p-6 reveal" style={`--reveal-delay:${i * 90}ms`}>
+          <div class="flex items-center justify-between">
+            <span class="label">{step.tag}</span>
+            <span class="mono text-xs text-faint">0{i + 1}</span>
+          </div>
+          <div class="my-4 rule" />
+          <p class="text-sm leading-relaxed text-dim">{step.text}</p>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="mt-6 flex flex-col gap-3 reveal sm:flex-row sm:items-center sm:justify-between">
+    <div class="glass inline-flex items-center gap-4 px-6 py-4">
+      <span class="label-dim">{t.journey.fromLabel}</span>
+      <span class="mono text-sm text-ink">
+        {oldest ? formatMonthYear(oldest.created_at, lang) : '—'}
+      </span>
+    </div>
+    <p class="text-xs text-faint">{t.journey.fromNote}</p>
+  </div>
+</Section>

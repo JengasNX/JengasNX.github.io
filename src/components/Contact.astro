@@ -1,0 +1,158 @@
+---
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+import { getDict, type Locale } from '../i18n';
+import { CONTACTS } from '../data/site';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = getDict(lang);
+
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
+
+const channels = [
+  { label: t.contact.links.github, value: '@JengasAdmin', href: CONTACTS.github },
+  { label: t.contact.links.telegram, value: '@nudnx', href: CONTACTS.telegram },
+  { label: t.contact.links.discord, value: CONTACTS.discord, href: CONTACTS.discordUrl },
+  { label: t.contact.links.email, value: CONTACTS.email, href: `mailto:${CONTACTS.email}` },
+];
+---
+
+<Section id="contact">
+  <SectionHeading index={t.contact.index} title={t.contact.title} subtitle={t.contact.subtitle} />
+
+  <div class="mt-12 grid gap-6 lg:grid-cols-2">
+    <!-- channels -->
+    <div class="flex flex-col gap-3 reveal">
+      {
+        channels.map((c) => (
+          <a
+            href={c.href}
+            target={c.href.startsWith('mailto:') ? undefined : '_blank'}
+            rel="noopener noreferrer"
+            class="glass glass-hover group flex items-center justify-between gap-4 p-5"
+          >
+            <span>
+              <span class="label-dim">{c.label}</span>
+              <span class="mono mt-1.5 block text-sm text-ink transition-colors group-hover:text-accent">
+                {c.value}
+              </span>
+            </span>
+            <span class="mono text-sm text-faint transition-transform group-hover:translate-x-1 group-hover:text-accent">
+              ↗
+            </span>
+          </a>
+        ))
+      }
+
+      <div class="glass flex items-center gap-4 p-5">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="text-sm text-dim">{t.hero.status}</span>
+      </div>
+    </div>
+
+    <!-- honest contact form -->
+    <form
+      id="contact-form"
+      class="glass p-6 reveal"
+      style="--reveal-delay:120ms"
+      data-endpoint={endpoint}
+      novalidate
+    >
+      <div class="flex flex-col gap-4">
+        <label class="block">
+          <span class="label-dim">{t.contact.form.name}</span>
+          <input type="text" name="name" class="field mt-2" autocomplete="name" required />
+        </label>
+
+        <label class="block">
+          <span class="label-dim">{t.contact.form.email}</span>
+          <input type="email" name="email" class="field mt-2" autocomplete="email" required />
+        </label>
+
+        <label class="block">
+          <span class="label-dim">{t.contact.form.message}</span>
+          <textarea name="message" rows="5" class="field mt-2 resize-y" required></textarea>
+        </label>
+
+        <div class="flex flex-wrap items-center gap-4">
+          <button type="submit" class="btn btn-primary">
+            <span data-submit-label>{t.contact.form.send}</span>
+          </button>
+          <span id="form-status" class="mono text-xs text-faint" role="status" aria-live="polite">
+          </span>
+        </div>
+
+        {
+          !endpoint && (
+            <p class="mono rounded-xl border border-line bg-glass p-3 text-[0.72rem] leading-relaxed text-faint">
+              {t.contact.form.notConnected}
+            </p>
+          )
+        }
+      </div>
+    </form>
+  </div>
+</Section>
+
+<script>
+  import { getDict, type Locale } from '../i18n';
+
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+
+  if (form) {
+    const lang: Locale = document.documentElement.lang === 'ru' ? 'ru' : 'en';
+    const t = getDict(lang).contact.form;
+    const status = document.getElementById('form-status');
+    const submitLabel = form.querySelector<HTMLElement>('[data-submit-label]');
+    const endpoint = form.dataset.endpoint ?? '';
+
+    const setStatus = (text: string, kind: 'error' | 'ok' | 'info') => {
+      if (!status) return;
+      status.textContent = text;
+      status.style.color =
+        kind === 'error'
+          ? '#f87171'
+          : kind === 'ok'
+            ? 'var(--c-accent)'
+            : 'var(--c-faint)';
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const body = new FormData(form);
+      const name = String(body.get('name') ?? '').trim();
+      const email = String(body.get('email') ?? '').trim();
+      const message = String(body.get('message') ?? '').trim();
+
+      if (!name || !email || !message) return setStatus(t.required, 'error');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setStatus(t.invalidEmail, 'error');
+
+      if (!endpoint) {
+        // Never pretend a message was sent — say the endpoint is missing.
+        setStatus(t.notConnected, 'error');
+        return;
+      }
+
+      if (submitLabel) submitLabel.textContent = t.sending;
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message, locale: lang, page: location.pathname }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        setStatus(t.success, 'ok');
+        form.reset();
+      } catch {
+        setStatus(t.error, 'error');
+      } finally {
+        if (submitLabel) submitLabel.textContent = t.send;
+      }
+    });
+  }
+</script>

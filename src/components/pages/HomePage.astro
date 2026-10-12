@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../Hero.astro';
+import About from '../About.astro';
+import GithubBlocks from '../GithubBlocks.astro';
+import Journey from '../Journey.astro';
+import Services from '../Services.astro';
+import Writing from '../Writing.astro';
+import Contact from '../Contact.astro';
+import { getDict, type Locale } from '../../i18n';
+import { loadGithubSnapshot } from '../../lib/github/data';
+import { getPostMeta } from '../../lib/blog';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = getDict(lang);
+
+/** Build-time snapshot: one set of API calls shared by every page. */
+const snapshot = await loadGithubSnapshot();
+const posts = await getPostMeta(lang);
+
+const description =
+  lang === 'ru'
+    ? `${t.meta.defaultDescription} Реальные проекты, живая статистика GitHub, услуги и статьи.`
+    : t.meta.defaultDescription;
+---
+
+<BaseLayout lang={lang} description={description} ogImage={snapshot.profile?.avatar_url}>
+  <Hero lang={lang} profile={snapshot.profile} stats={snapshot.stats} />
+  <About lang={lang} profile={snapshot.profile} stats={snapshot.stats} />
+  <GithubBlocks lang={lang} snapshot={snapshot} />
+  <Journey lang={lang} projects={snapshot.projects} />
+  <Services lang={lang} />
+  <Writing lang={lang} posts={posts} />
+  <Contact lang={lang} />
+</BaseLayout>

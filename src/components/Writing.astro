@@ -1,0 +1,33 @@
+---
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+import PostList from './PostList.astro';
+import type { PostMeta } from '../lib/blog';
+import { getDict, type Locale } from '../i18n';
+
+interface Props {
+  lang: Locale;
+  posts: PostMeta[];
+}
+
+const { lang, posts } = Astro.props;
+const t = getDict(lang);
+const blogHome = lang === 'ru' ? '/ru/blog/' : '/blog/';
+---
+
+<Section id="writing">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <SectionHeading index={t.writing.index} title={t.writing.title} subtitle={t.writing.subtitle} />
+    {
+      posts.length > 0 && (
+        <a href={blogHome} class="btn btn-ghost btn-sm reveal shrink-0">
+          {t.writing.allPosts} →
+        </a>
+      )
+    }
+  </div>
+
+  <div class="mt-10 reveal">
+    <PostList lang={lang} posts={posts} compact />
+  </div>
+</Section>

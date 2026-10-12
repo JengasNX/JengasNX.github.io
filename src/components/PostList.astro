@@ -1,0 +1,53 @@
+---
+import type { PostMeta } from '../lib/blog';
+import { getDict, type Locale } from '../i18n';
+import { formatDate, fill } from '../lib/format';
+
+interface Props {
+  lang: Locale;
+  posts: PostMeta[];
+  compact?: boolean;
+}
+
+const { lang, posts, compact = false } = Astro.props;
+const t = getDict(lang);
+const shown = compact ? posts.slice(0, 3) : posts;
+---
+
+{
+  shown.length === 0 ? (
+    <p class="mono text-sm text-dim">{t.writing.empty}</p>
+  ) : (
+    <div class="border-t border-line">
+      {shown.map((post) => (
+        <a
+          href={post.url}
+          class="group grid gap-3 border-b border-line py-7 transition-colors hover:bg-glass md:grid-cols-[8rem_1fr_6rem] md:gap-6"
+        >
+          <div class="mono text-[0.72rem] leading-relaxed text-faint md:pt-1">
+            <div>{formatDate(post.entry.data.pubDate.toISOString(), lang)}</div>
+            <div class="text-faint/70">{fill(t.writing.minRead, { n: post.minutes })}</div>
+          </div>
+
+          <div class="min-w-0">
+            <h3 class="text-lg font-medium leading-snug text-ink transition-colors group-hover:text-accent">
+              {post.entry.data.title}
+            </h3>
+            <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-dim">
+              {post.entry.data.description}
+            </p>
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              {post.entry.data.tags.map((tag) => (
+                <span class="chip">#{tag}</span>
+              ))}
+            </div>
+          </div>
+
+          <span class="mono self-center text-sm text-faint transition-colors group-hover:text-accent md:text-right">
+            {t.writing.readMore} →
+          </span>
+        </a>
+      ))}
+    </div>
+  )
+}

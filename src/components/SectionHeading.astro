@@ -1,0 +1,24 @@
+---
+interface Props {
+  index?: string;
+  title: string;
+  subtitle?: string;
+}
+
+const { index, title, subtitle } = Astro.props;
+---
+
+<div class="reveal">
+  <div class="flex items-center gap-4">
+    {index && <span class="label shrink-0">{index} —</span>}
+    <span class="rule flex-1"></span>
+  </div>
+  <h2 class="display mt-6 text-[clamp(2rem,4.6vw,3.25rem)]">{title}</h2>
+  {
+    subtitle && (
+      <p class="mt-5 max-w-2xl text-base leading-relaxed text-dim md:text-[1.05rem]">
+        {subtitle}
+      </p>
+    )
+  }
+</div>

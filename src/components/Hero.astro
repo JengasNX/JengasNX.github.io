@@ -1,0 +1,176 @@
+---
+import { getDict, type Locale } from '../i18n';
+import { SITE } from '../data/site';
+import { formatNumber } from '../lib/format';
+import type { GithubProfile, GithubStats } from '../lib/github/types';
+
+interface Props {
+  lang: Locale;
+  profile: GithubProfile | null;
+  stats: GithubStats | null;
+}
+
+const { lang, profile, stats } = Astro.props;
+const t = getDict(lang);
+const year = new Date().getFullYear();
+
+const kicker = t.hero.kicker.replace('{year}', String(year));
+const term = t.hero.terminal;
+
+const tiles = [
+  { value: stats ? formatNumber(stats.publicRepos, lang) : '—', label: t.githubSection.repos },
+  { value: stats ? formatNumber(stats.followers, lang) : '—', label: t.githubSection.followers },
+  { value: stats ? formatNumber(stats.totalStars, lang) : '—', label: t.githubSection.stars },
+];
+---
+
+<section id="top" class="relative overflow-hidden pb-20 pt-32 md:pb-28 md:pt-40">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+      <!-- headline -->
+      <div>
+        <div class="reveal flex flex-wrap items-center gap-3">
+          <span class="chip">
+            <span class="status-dot" aria-hidden="true"></span>
+            {t.hero.status}
+          </span>
+          <span class="label-dim">{kicker}</span>
+        </div>
+
+        <p class="label reveal mt-8" style="--reveal-delay:80ms">{t.hero.role}</p>
+
+        <h1 class="display reveal mt-3 text-[clamp(2.9rem,8.5vw,5.75rem)]" style="--reveal-delay:140ms">
+          {t.hero.name}
+          <span class="text-gradient block">{t.hero.handle}</span>
+        </h1>
+
+        <p
+          class="mt-7 max-w-xl text-base leading-relaxed text-dim md:text-[1.1rem]"
+          style="--reveal-delay:220ms"
+        >
+          {t.hero.description}
+        </p>
+
+        <div class="mt-9 flex flex-wrap gap-3 reveal" style="--reveal-delay:300ms">
+          <a href="#projects" class="btn btn-primary">{t.hero.viewProjects} ↓</a>
+          <a href="#contact" class="btn btn-ghost">{t.hero.contact}</a>
+        </div>
+      </div>
+
+      <!-- terminal + stats -->
+      <div class="reveal" style="--reveal-delay:200ms">
+        <div class="glass overflow-hidden">
+          <div class="term-bar">
+            <span class="term-dot" aria-hidden="true"></span>
+            <span class="term-dot" aria-hidden="true"></span>
+            <span class="term-dot" aria-hidden="true"></span>
+            <span class="mono ml-2 text-[0.72rem] text-faint">{term.title}</span>
+          </div>
+
+          <div class="flex items-start gap-4 p-5">
+            {
+              profile && (
+                <img
+                  src={profile.avatar_url}
+                  alt={SITE.name}
+                  width="72"
+                  height="72"
+                  loading="eager"
+                  decoding="async"
+                  class="h-16 w-16 shrink-0 rounded-2xl border border-line object-cover"
+                />
+              )
+            }
+            <div class="term min-w-0 flex-1" data-terminal>
+              <p class="term-line" data-type="cmd"><span class="term-prompt">$</span> {term.whoami}</p>
+              <p class="term-line" data-type="out">{term.line1}</p>
+              <p class="term-line" data-type="cmd"><span class="term-prompt">$</span> {term.stack}</p>
+              <p class="term-line" data-type="out term-key">{term.line2}</p>
+              <p class="term-line" data-type="cmd"><span class="term-prompt">$</span> {term.status}</p>
+              <p class="term-line" data-type="out">
+                <span class="text-accent">●</span> {term.line3}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-3 gap-4">
+          {
+            tiles.map((tile) => (
+              <div class="glass p-4 text-center">
+                <div class="mono text-xl font-medium text-ink">{tile.value}</div>
+                <div class="label-dim mt-1.5 text-[0.6rem]">{tile.label}</div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 flex items-center gap-4 text-faint reveal">
+      <span class="label-dim">{t.hero.scroll}</span>
+      <span class="h-10 w-px bg-line-strong" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Terminal typewriter: progressive enhancement — the full text is already
+  // in the DOM, we only replay it when motion is allowed.
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.querySelector<HTMLElement>('[data-terminal]');
+
+  if (root && !reduced) {
+    const lines = [...root.querySelectorAll<HTMLElement>('.term-line')];
+    const snapshot = lines.map((line) => line.innerHTML);
+
+    lines.forEach((line) => (line.style.visibility = 'hidden'));
+
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    const run = async () => {
+      try {
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const kind = line.dataset.type ?? 'out';
+          line.style.visibility = 'visible';
+
+          if (kind.startsWith('cmd')) {
+            // Type the command character by character (prompt stays instant).
+            const prompt = line.querySelector('.term-prompt');
+            const promptHtml = prompt ? prompt.outerHTML + ' ' : '';
+            const text = line.textContent?.replace(/^\$\s?/, '') ?? '';
+            let acc = '';
+            line.innerHTML = promptHtml;
+            for (const ch of text) {
+              acc += ch;
+              line.innerHTML = promptHtml + escapeHtml(acc);
+              await wait(24);
+            }
+            line.innerHTML = snapshot[i];
+          } else {
+            line.style.opacity = '0';
+            line.style.transition = 'opacity .35s ease';
+            requestAnimationFrame(() => (line.style.opacity = '1'));
+            await wait(260);
+          }
+          await wait(90);
+        }
+      } catch {
+        // Never leave the terminal half-typed: restore the static content.
+        lines.forEach((line, i) => {
+          line.style.visibility = 'visible';
+          line.style.opacity = '1';
+          line.innerHTML = snapshot[i];
+        });
+      }
+    };
+
+    function escapeHtml(s: string) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Start once the hero is on screen.
+    requestAnimationFrame(() => void run());
+  }
+</script>

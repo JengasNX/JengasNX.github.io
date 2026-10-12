@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getDict } from '../i18n';
+
+const t = getDict('en');
+const ru = getDict('ru');
+---
+
+<BaseLayout lang="en" title="404" description="Page not found.">
+  <div class="mx-auto max-w-3xl px-5 pb-32 pt-40 text-center">
+    <p class="label">404 — not found</p>
+    <h1 class="display mt-5 text-[clamp(2.4rem,7vw,4rem)]">Lost in the void</h1>
+    <p class="mx-auto mt-5 max-w-md text-dim">
+      This page does not exist. Head back to the main page — everything worth showing is there.
+    </p>
+    <div class="mt-9 flex flex-wrap justify-center gap-3">
+      <a href="/" class="btn btn-primary">← {t.nav.about}</a>
+      <a href="/ru/" class="btn btn-ghost">RU</a>
+      <a href="/blog/" class="btn btn-ghost">{ru.nav.blog}</a>
+    </div>
+  </div>
+</BaseLayout>

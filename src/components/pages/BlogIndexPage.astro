@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../SectionHeading.astro';
+import PostList from '../PostList.astro';
+import { getDict, type Locale } from '../../i18n';
+import { getPostMeta, postUrl } from '../../lib/blog';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = getDict(lang);
+const posts = await getPostMeta(lang);
+const home = lang === 'ru' ? '/ru/' : '/';
+---
+
+<BaseLayout lang={lang} title={t.writing.blogTitle} description={t.writing.blogSubtitle}>
+  <div class="pb-20 pt-32 md:pt-40">
+    <SectionHeading
+      index="///"
+      title={t.writing.blogTitle}
+      subtitle={t.writing.blogSubtitle}
+    />
+
+    <div class="mt-12">
+      <PostList lang={lang} posts={posts} />
+    </div>
+
+    <div class="mt-12 flex flex-wrap gap-3">
+      <a href={home} class="btn btn-ghost btn-sm">← {t.writing.backToHome}</a>
+      {
+        posts.slice(0, 1).map((p) => (
+          <span class="mono self-center text-xs text-faint">{postUrl(lang, p.slug)}</span>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

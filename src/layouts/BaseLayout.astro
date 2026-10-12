@@ -1,0 +1,139 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { getDict, baseFromPath, type Locale } from '../i18n';
+import { SITE, CONTACTS } from '../data/site';
+
+interface Props {
+  lang: Locale;
+  title?: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+}
+
+const { lang, title, description, ogType = 'website', ogImage } = Astro.props;
+const t = getDict(lang);
+
+const pathname = Astro.url.pathname;
+const base = baseFromPath(pathname, lang);
+
+/** Directory-style URLs always end with `/` (except the site root). */
+const withSlash = (p: string) => (p === '/' || p.endsWith('/') ? p : `${p}/`);
+const canonicalBase = withSlash(base);
+
+const enHref = new URL(canonicalBase, SITE.siteUrl).href;
+const ruHref = new URL(base === '/' ? '/ru/' : `/ru${canonicalBase}`, SITE.siteUrl).href;
+const canonical = lang === 'ru' ? ruHref : enHref;
+
+const pageTitle = title ? `${title} · ${t.meta.siteName}` : t.meta.defaultTitle;
+const pageDescription = description ?? t.meta.defaultDescription;
+const ogImageUrl = ogImage ?? SITE.ogImage;
+
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.name,
+  alternateName: SITE.firstName,
+  jobTitle: SITE.role,
+  url: SITE.siteUrl,
+  image: SITE.ogImage,
+  sameAs: [CONTACTS.github, CONTACTS.telegram, CONTACTS.discordUrl],
+};
+---
+
+<!doctype html>
+<html lang={lang} data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <link rel="alternate" hreflang="en" href={enHref} />
+    <link rel="alternate" hreflang="ru" href={ruHref} />
+    <link rel="alternate" hreflang="x-default" href={enHref} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={t.meta.siteName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content={lang === 'ru' ? 'ru_RU' : 'en_GB'} />
+    <meta property="og:locale:alternate" content={lang === 'ru' ? 'en_GB' : 'ru_RU'} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <meta name="theme-color" content="#08090d" />
+    <meta name="generator" content={Astro.generator} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+
+    <!-- No-flash theme restore: runs before first paint. -->
+    <script is:inline>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          document.documentElement.dataset.theme =
+            saved === 'light' || saved === 'dark' ? saved : 'dark';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="min-h-screen antialiased">
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-glow" aria-hidden="true"></div>
+    <div class="bg-noise" aria-hidden="true"></div>
+
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink"
+    >
+      {t.nav.skip}
+    </a>
+
+    <Nav lang={lang} />
+
+    <main id="main" tabindex={-1} class="focus:outline-none">
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
+
+    <script>
+      // Scroll-reveal: elements fade in the first time they enter the viewport.
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const targets = document.querySelectorAll<HTMLElement>('.reveal');
+
+      if (reduced || !('IntersectionObserver' in window)) {
+        targets.forEach((el) => el.classList.add('is-visible'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+              }
+            });
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+        targets.forEach((el) => io.observe(el));
+      }
+    </script>
+  </body>
+</html>

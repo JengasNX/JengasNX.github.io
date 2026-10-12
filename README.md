@@ -2,206 +2,198 @@
 
 Personal portfolio site of **Вячеслав (JengasAdmin)** — Full Stack Developer.
 
-> Один разработчик → реальные проекты → GitHub → технологии → опыт → портфолио.
+> One developer → real projects → GitHub → skills → services → writing → contact.
 
-The site is a single-page portfolio (plus a GitHub Profile page and per-project
-detail pages) that pulls **real, public data from the GitHub REST API** —
-no fake projects, no invented experience, no hardcoded repository list.
-New public repositories appear automatically after the cache expires or after
-pressing **Refresh GitHub Data**.
+Built with **Astro + Tailwind CSS 4**: static HTML first, JavaScript only where
+the page is genuinely interactive (project filters, live refresh, theme).
 
 🔗 **Live:** <https://jengasadmin.github.io/>
 
 ---
 
-## Features
+## Highlights
 
-- **GitHub integration** — profile, repositories, languages, README, statistics
-  fetched live from the GitHub REST API (no token required for public data)
-- **Automatic project discovery** — every public repository is analysed
-  (languages, `package.json`, manifests, `.github/workflows`)
-- **Transparent "Featured" selection** — rule-based scoring
-  (description, README, demo, stars, activity). Explicitly *not* a quality rating
-- **Visual project previews** — official GitHub Open Graph images per repository,
-  GitHub Pages demo links, optional iframe preview on project pages
-- **Project detail pages** — README (rendered safely), stack, topics, languages,
-  stats, creation/update dates, GitHub + Live Demo buttons
-- **GitHub statistics** — repos, followers, following, stars, forks,
-  language share bar, recently updated projects
-- **GitHub Profile page** — avatar, stats, technologies, activity, big CTA
-- **Automatic tech detection** — skills are derived from real repository data only
-- **Search, filters, sorting** — filters are generated from the actual project data
-- **RU / EN localization** — `src/locales/{ru,en}.ts`, instant switch, no reload
-- **Dark / Light theme** — persisted, dark-first
-- **Caching + rate-limit handling** — localStorage TTL cache, stale fallback,
-  explicit rate-limit message, manual refresh button
-- **Interactive UI** — scroll reveals, animated counters, cursor glow, hover
-  effects; heavy effects auto-disable on mobile & `prefers-reduced-motion`
-- **Responsive** — mobile, tablet, laptop, desktop, ultrawide
-- **Accessibility** — semantic HTML, ARIA labels, keyboard navigation, focus
-  states, reduced-motion support
-- **SEO** — title/description, Open Graph, Twitter card, canonical,
-  `robots.txt`, `sitemap.xml`, favicon
-- **Honest contact form** — ready for a backend endpoint; it never fakes success
+- **Static-first** — the whole page is rendered at build time; it works without
+  JavaScript and paints instantly.
+- **Real GitHub data** — profile, repositories, languages, stack and statistics
+  come from the GitHub REST API. No hand-written project list.
+- **Automatic tech detection** — languages from `/languages`, frameworks from
+  `package.json`, tooling from observable files (`.github/workflows` → Actions).
+- **Transparent "Featured" selection** — rule-based scoring (description, README,
+  demo, stars, activity). Explicitly *not* a quality rating.
+- **Inline project details** — search, category filters, sorting, stack, topics,
+  stats and a lazily loaded README right on the page (no separate detail routes).
+- **Live refresh** — the *Refresh GitHub data* button refetches and repaints
+  projects, skills and statistics in the browser.
+- **Blog on Markdown** — posts live in `src/content/blog/{en,ru}` and generate
+  `/blog/…` and `/ru/blog/…`.
+- **RU / EN** — English is the default locale at the root, Russian under `/ru/`,
+  with `hreflang` alternates, canonical URLs and localized dates/numbers.
+- **Dark / light theme** — dark-first, persisted, no flash on load.
+- **Caching & rate limits** — build-time disk cache + browser `localStorage`
+  cache with stale fallback, so the site never renders empty when the GitHub API
+  is limited.
+- **SEO & a11y** — Open Graph, Twitter card, sitemap, `robots.txt`, JSON-LD
+  `Person`, semantic markup, skip link, focus states, reduced-motion support.
 
 ---
 
-## Tech Stack
+## Tech stack
 
-| Layer      | Technology                                  |
-|------------|---------------------------------------------|
-| UI         | React 18, TypeScript, Tailwind CSS          |
-| Build      | Vite 5                                      |
-| Motion     | Framer Motion (+ CSS transitions)           |
-| Icons      | Lucide React                                |
-| Routing    | React Router (HashRouter → GitHub Pages safe) |
-| Data       | GitHub REST API (`api.github.com`)          |
-| Quality    | ESLint (flat config), `tsc --noEmit`        |
-| Deploy     | GitHub Actions → GitHub Pages               |
-
----
-
-## GitHub Integration
-
-All API access lives in one isolated layer — UI never calls `fetch` directly:
-
-```
-src/services/
-├── githubApi.ts   # transport: caching, retries, rate-limit, stale fallback
-├── github.ts      # domain: getProfile, getProjects, getStats, getReadme…
-└── tech.ts        # analysis: languages, libraries, category, featured score
-```
-
-Key functions:
-
-| Function | Purpose |
-|---|---|
-| `getProfile()` | avatar, bio, counters |
-| `getRepositories()` | all public repositories |
-| `getLanguages(repo)` | byte counts per language |
-| `getReadme(repo)` | raw README markdown |
-| `analyzeRepo(repo)` | full stack analysis of one repository |
-| `getProjects()` | analysed list of all projects |
-| `getFeatured(projects)` | transparent featured selection |
-| `getStats()` | aggregated profile statistics |
-
-**Data that is intentionally NOT shown** (GitHub requires authenticated GraphQL):
-pinned repositories, contribution calendar, exact commit counts.
-The reason is documented in `src/services/github.ts`.
-
-### Caching
-
-Responses are cached in `localStorage` (10–60 min TTL depending on the data
-type). On rate limit or network errors the stale cache is served instead of
-failing. **Refresh GitHub Data** clears the cache and refetches.
+| Layer     | Technology                                   |
+|-----------|----------------------------------------------|
+| Framework | Astro 7 (static output)                      |
+| Styling   | Tailwind CSS 4 (CSS-first config)            |
+| Fonts     | Inter Variable + JetBrains Mono (self-hosted)|
+| Content   | Astro content collections (Markdown)         |
+| Data      | GitHub REST API (`api.github.com`)           |
+| Quality   | `astro check` (TypeScript strict)            |
+| Deploy    | GitHub Actions → GitHub Pages                |
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 JengasAdmin.github.io/
-├── .github/workflows/deploy.yml   # build + deploy to GitHub Pages
-├── public/
-│   ├── favicon.svg
-│   ├── robots.txt
-│   └── sitemap.xml
-└── src/
-    ├── components/                # Navbar, Footer, ProjectCard, SkillCard…
-    ├── sections/                  # Hero, About, Skills, Projects, GitHub…
-    ├── pages/                     # HomePage, ProfilePage, ProjectPage
-    ├── services/                  # GitHub API layer (github.ts …)
-    ├── context/                   # LocaleContext, ThemeContext
-    ├── hooks/                     # useGithub, useReveal, useMediaQuery
-    ├── data/content.ts            # editable text, contacts, articles
-    ├── locales/                   # ru.ts, en.ts
-    ├── types/                     # shared TypeScript types
-    ├── utils/                     # cache, format, language, markdown
-    ├── App.tsx
-    ├── main.tsx
-    └── index.css
+├── .github/workflows/deploy.yml   # check + build + deploy to GitHub Pages
+├── public/                        # favicon, robots.txt
+├── src/
+│   ├── components/                # Nav, Footer, Hero, About, section blocks
+│   │   └── pages/                 # HomePage, BlogIndexPage, BlogPostPage
+│   ├── content/blog/              # Markdown posts: en/*.md, ru/*.md
+│   ├── content.config.ts          # blog collection schema
+│   ├── data/site.ts               # SITE + CONTACTS (edit here)
+│   ├── i18n/                      # en.ts, ru.ts dictionaries (typed)
+│   ├── layouts/BaseLayout.astro   # head, SEO, theme, nav, footer
+│   ├── lib/
+│   │   ├── github/                # API transport, cache, analysis, build loader
+│   │   ├── blog.ts                # post queries, URLs, reading time
+│   │   ├── render.ts              # shared HTML templates (build + browser)
+│   │   ├── markdown.ts            # safe README renderer
+│   │   └── format.ts              # dates, numbers, helpers
+│   ├── pages/                     # /, /ru/, /blog/…, 404
+│   └── styles/global.css          # design tokens + components
+├── astro.config.mjs
+└── tsconfig.json
 ```
+
+### How the GitHub integration works
+
+```
+src/lib/github/
+├── api.ts       transport: caching, rate-limit handling, stale fallback,
+│                optional build-time GITHUB_TOKEN
+├── service.ts   domain: profile, repositories, analysis, skills, stats
+├── tech.ts      detection: categories, libraries, featured score
+├── cache.ts     localStorage in the browser, memory during the build
+└── data.ts      BUILD-ONLY loader with a disk cache (.cache/github.json)
+```
+
+The same analysis runs at build time (static HTML) and in the browser
+(*Refresh* button). Requests per build: roughly `3 × repositories` — the disk
+cache keeps them at zero for 10 minutes and the optional `GITHUB_TOKEN` raises
+the hourly limit from 60 to 1000+.
+
+Data GitHub does **not** expose without authentication (pinned repositories,
+contribution calendar) is intentionally not shown — see the comment in
+`src/lib/github/service.ts`.
 
 ---
 
-## Local Development
+## Local development
 
 ```bash
 npm install
-npm run dev       # http://localhost:5173
+npm run dev       # http://localhost:4321
 ```
 
-### Scripts
+| Script            | Purpose                                  |
+|-------------------|------------------------------------------|
+| `npm run dev`     | dev server with HMR                      |
+| `npm run build`   | production build → `dist/`               |
+| `npm run preview` | preview the production build             |
+| `npm run check`   | TypeScript + Astro diagnostics           |
 
-| Script | Purpose |
+---
+
+## Environment variables
+
+Copy `.env.example` → `.env`:
+
+| Variable | Where | Default | Purpose |
+|---|---|---|---|
+| `GITHUB_USERNAME` | build | `JengasAdmin` | whose repositories are shown |
+| `GITHUB_TOKEN` | build | *(empty)* | optional, raises build-time API limit |
+| `PUBLIC_CONTACT_ENDPOINT` | build → client | *(empty)* | contact form backend endpoint |
+
+> Never put a token in a `PUBLIC_`/client variable — everything exposed to the
+> browser is embedded into the public bundle. `GITHUB_TOKEN` is read only while
+> Astro renders on the server.
+
+Without `PUBLIC_CONTACT_ENDPOINT` the contact form **explicitly tells the
+visitor** that sending is not connected — it never pretends to succeed.
+
+---
+
+## Writing a blog post
+
+1. Create `src/content/blog/en/my-post.md` (and optionally `src/content/blog/ru/my-post.md`
+   with the same file name to get a language switch on the post page):
+
+   ```md
+   ---
+   title: "Post title"
+   description: "One-line summary used in listings and meta description."
+   pubDate: 2026-10-12
+   tags: ["Astro", "TypeScript"]
+   draft: false
+   ---
+   ```
+
+2. Write Markdown below the frontmatter.
+3. `npm run dev` → `/blog/my-post`.
+
+The homepage shows the three newest posts; `/blog/` lists everything.
+
+---
+
+## Editing content
+
+| What | Where |
 |---|---|
-| `npm run dev` | dev server with HMR |
-| `npm run build` | TypeScript check + production build |
-| `npm run preview` | preview the production build |
-| `npm run lint` | ESLint (zero warnings allowed) |
-
----
-
-## Environment Variables
-
-Copy `.env.example` → `.env` and adjust:
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `VITE_GITHUB_USERNAME` | `JengasAdmin` | whose repositories are shown |
-| `VITE_BASE_PATH` | `/` | build base path (sub-path repos) |
-| `VITE_CONTACT_ENDPOINT` | *(empty)* | backend endpoint for the contact form |
-
-### Security
-
-**Never put a GitHub PAT, API keys or passwords in frontend env vars** —
-everything prefixed with `VITE_` is embedded into the public bundle.
-Public GitHub data works without authorization (60 requests/h per IP).
-If you need more, add a serverless proxy that holds `GITHUB_TOKEN`
-server-side (e.g. `/api/github-proxy` on Vercel/Cloudflare Workers) and point
-the service layer at it.
-
-### Contact form
-
-Without `VITE_CONTACT_ENDPOINT` the form **explicitly tells the user** that
-sending is not connected yet — it never pretends to succeed. Once the endpoint
-is set, the form POSTs JSON `{ name, email, message, locale, page }`.
-
----
-
-## Build
-
-```bash
-npm run build     # tsc --noEmit + vite build → dist/
-npm run preview
-```
+| Name, role, site URL | `src/data/site.ts` → `SITE` |
+| Contacts (Telegram, Discord, Email) | `src/data/site.ts` → `CONTACTS` |
+| All UI texts (EN) | `src/i18n/en.ts` |
+| All UI texts (RU) | `src/i18n/ru.ts` |
+| Services / journey / hero copy | `src/i18n/{en,ru}.ts` |
+| Blog posts | `src/content/blog/**` |
 
 ---
 
 ## Deployment — GitHub Pages
 
-1. Push to `main` of the `JengasAdmin.github.io` repository.
-2. `.github/workflows/deploy.yml` runs `npm ci` → `npm run build` →
-   deploys `dist/` with `actions/deploy-pages`.
-3. In **Settings → Pages** set *Source: GitHub Actions*.
-4. The site is published at <https://jengasadmin.github.io/>.
+1. Push to `main`.
+2. `.github/workflows/deploy.yml` runs `npm run check` → `npm run build` and
+   publishes `dist/` with `actions/deploy-pages`.
+3. **Settings → Pages → Source: GitHub Actions**.
+4. The site is live at <https://jengasadmin.github.io/>.
 
-If you deploy into a *project* repository instead, rebuild with:
-
-```bash
-VITE_BASE_PATH=/<repo-name>/ npm run build
-```
+The workflow caches `.cache/github.json` between runs so builds stay within the
+GitHub API limits.
 
 ---
 
-## Editing Content
+## Design notes
 
-| What | Where |
-|---|---|
-| Hero/About/Journey/Services texts | `src/locales/ru.ts`, `src/locales/en.ts` |
-| Contacts (Telegram, Discord, Email) | `src/data/content.ts` → `CONTACTS` |
-| Articles | `src/data/content.ts` → `ARTICLES` |
-| Status badge text | `src/locales/*` → `hero.status` |
+Dark editorial theme with glass surfaces and terminal accents:
+
+- tokens live in `src/styles/global.css` (`:root` dark, `[data-theme='light']`
+  override) and are exposed to Tailwind through `@theme inline`;
+- glass = `backdrop-blur` + 1 px border + inner highlight;
+- section labels use JetBrains Mono (`01 —`, `label`);
+- motion: IntersectionObserver reveals + a typewriter terminal in the hero, both
+  disabled under `prefers-reduced-motion`.
 
 ---
 

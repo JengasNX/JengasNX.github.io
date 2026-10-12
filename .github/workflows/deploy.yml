@@ -27,11 +27,26 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Restore GitHub data snapshot
+        uses: actions/cache@v4
+        with:
+          path: .cache/github.json
+          key: github-snapshot-${{ github.run_id }}
+          restore-keys: |
+            github-snapshot-
+
       - name: Install dependencies
         run: npm ci
 
-      - name: TypeScript check & production build
+      - name: Type check
+        run: npm run check
+
+      - name: Build
         run: npm run build
+        env:
+          # Build-time only: keeps the GitHub API calls within limits.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USERNAME: JengasAdmin
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

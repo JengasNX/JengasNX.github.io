@@ -1,0 +1,86 @@
+---
+import { getDict, type Locale } from '../i18n';
+import { SITE, SOURCE_URL, CONTACTS } from '../data/site';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = getDict(lang);
+const year = new Date().getFullYear();
+const home = lang === 'ru' ? '/ru/' : '/';
+
+const links = [
+  { href: `${home}#about`, label: t.nav.about },
+  { href: `${home}#projects`, label: t.nav.projects },
+  { href: `${home}#services`, label: t.nav.services },
+  { href: lang === 'ru' ? '/ru/blog/' : '/blog/', label: t.nav.blog },
+  { href: `${home}#contact`, label: t.nav.contact },
+];
+---
+
+<footer class="mt-24 border-t border-line">
+  <div class="mx-auto max-w-6xl px-5 py-14">
+    <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div>
+        <a href={home} class="mono text-sm font-medium">
+          <span class="text-accent">~/</span><span class="text-ink">jengas</span>
+        </a>
+        <p class="mt-3 max-w-xs text-sm leading-relaxed text-dim">
+          {t.hero.description}
+        </p>
+        <span class="chip mt-4">
+          <span class="status-dot" aria-hidden="true"></span>
+          {t.nav.available}
+        </span>
+      </div>
+
+      <nav aria-label={t.nav.menu}>
+        <div class="label-dim">{t.nav.menu}</div>
+        <ul class="mt-4 flex flex-col gap-2.5">
+          {
+            links.map((l) => (
+              <li>
+                <a href={l.href} class="text-sm text-dim transition-colors hover:text-accent">
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div>
+        <div class="label-dim">{t.contact.title}</div>
+        <ul class="mt-4 flex flex-col gap-2.5">
+          <li>
+            <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" class="text-sm text-dim transition-colors hover:text-accent">Telegram ↗</a>
+          </li>
+          <li>
+            <a href={CONTACTS.discordUrl} target="_blank" rel="noopener noreferrer" class="text-sm text-dim transition-colors hover:text-accent">Discord ↗</a>
+          </li>
+          <li>
+            <a href={`mailto:${CONTACTS.email}`} class="text-sm text-dim transition-colors hover:text-accent">{CONTACTS.email}</a>
+          </li>
+          <li>
+            <a href={SITE.githubUrl} target="_blank" rel="noopener noreferrer" class="text-sm text-dim transition-colors hover:text-accent">GitHub ↗</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rule my-9"></div>
+
+    <div class="flex flex-col gap-4 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
+      <p class="mono">© {year} {SITE.name} — {t.footer.rights}</p>
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <span class="mono">{t.footer.built}</span>
+        <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer" class="mono transition-colors hover:text-accent">
+          {t.footer.source} ↗
+        </a>
+        <a href="#main" class="mono transition-colors hover:text-accent">{t.footer.top} ↑</a>
+      </div>
+    </div>
+  </div>
+</footer>
