@@ -12,8 +12,8 @@ derived from public GitHub data.
 ## The pipeline
 
 ```
-/users/JengasAdmin            → profile (avatar, counters)
-/users/JengasAdmin/repos      → repositories (forks are dropped)
+/users/JengasNX            → profile (avatar, counters)
+/users/JengasNX/repos      → repositories (forks are dropped)
 /repos/…/languages            → byte counts per language
 /repos/…/contents/            → root files: manifests, .github/, README
 /repos/…/contents/package.json→ dependencies → frameworks & libraries

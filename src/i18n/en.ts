@@ -6,10 +6,10 @@
 
 export const en = {
   meta: {
-    siteName: 'JengasAdmin',
-    defaultTitle: 'JengasAdmin — Full Stack Developer',
+    siteName: 'JengasNX',
+    defaultTitle: 'JengasNX — Full Stack Developer',
     defaultDescription:
-      'Portfolio of Вячеслав (JengasAdmin), Full Stack Developer. Real projects pulled live from GitHub, services, writing and contacts.',
+      'Portfolio of Вячеслав (JengasNX), Full Stack Developer. Real projects pulled live from GitHub, services, writing and contacts.',
   },
   nav: {
     about: 'About',
@@ -35,7 +35,7 @@ export const en = {
     role: 'Full Stack Developer',
     kicker: 'Portfolio // {year}',
     name: 'Вячеслав',
-    handle: 'JengasAdmin',
+    handle: 'JengasNX',
     description:
       'I build modern web products, digital services and complete Full Stack solutions — from interface and architecture to production.',
     viewProjects: 'View projects',

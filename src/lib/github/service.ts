@@ -25,7 +25,7 @@ import {
 
 /** Username: build-time env first, safe default second. */
 export const USERNAME: string =
-  (typeof process !== 'undefined' && process.env?.GITHUB_USERNAME) || 'JengasAdmin';
+  (typeof process !== 'undefined' && process.env?.GITHUB_USERNAME) || 'JengasNX';
 
 /** GitHub Pages base for demos. */
 const PAGES_BASE = `https://${USERNAME.toLowerCase()}.github.io`;

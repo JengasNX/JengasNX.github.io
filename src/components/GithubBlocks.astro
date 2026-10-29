@@ -217,7 +217,7 @@ const updatedNote = snapshot.fetchedAt
   if (dataEl && grid && searchEl && sortEl && refreshBtn) {
     const data = JSON.parse(dataEl.textContent ?? '{}') as Payload;
     const t = getDict(data.lang).projects;
-    const ctx: RenderCtx = { lang: data.lang, t: getDict(data.lang), username: 'JengasAdmin' };
+    const ctx: RenderCtx = { lang: data.lang, t: getDict(data.lang), username: 'JengasNX' };
 
     const state = {
       query: '',

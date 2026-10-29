@@ -46,7 +46,7 @@ jobs:
         env:
           # Build-time only: keeps the GitHub API calls within limits.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USERNAME: JengasAdmin
+          GITHUB_USERNAME: JengasNX
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

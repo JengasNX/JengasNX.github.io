@@ -1,13 +1,13 @@
-# JengasAdmin Portfolio
+# JengasNX Portfolio
 
-Personal portfolio site of **Вячеслав (JengasAdmin)** — Full Stack Developer.
+Personal portfolio site of **Вячеслав (JengasNX)** — Full Stack Developer.
 
 > One developer → real projects → GitHub → skills → services → writing → contact.
 
 Built with **Astro + Tailwind CSS 4**: static HTML first, JavaScript only where
 the page is genuinely interactive (project filters, live refresh, theme).
 
-🔗 **Live:** <https://jengasadmin.github.io/>
+🔗 **Live:** <https://jengasnx.github.io/>
 
 ---
 
@@ -55,7 +55,7 @@ the page is genuinely interactive (project filters, live refresh, theme).
 ## Project structure
 
 ```
-JengasAdmin.github.io/
+JengasNX.github.io/
 ├── .github/workflows/deploy.yml   # check + build + deploy to GitHub Pages
 ├── public/                        # favicon, robots.txt
 ├── src/
@@ -123,7 +123,7 @@ Copy `.env.example` → `.env`:
 
 | Variable | Where | Default | Purpose |
 |---|---|---|---|
-| `GITHUB_USERNAME` | build | `JengasAdmin` | whose repositories are shown |
+| `GITHUB_USERNAME` | build | `JengasNX` | whose repositories are shown |
 | `GITHUB_TOKEN` | build | *(empty)* | optional, raises build-time API limit |
 | `PUBLIC_CONTACT_ENDPOINT` | build → client | *(empty)* | contact form backend endpoint |
 
@@ -177,7 +177,7 @@ The homepage shows the three newest posts; `/blog/` lists everything.
 2. `.github/workflows/deploy.yml` runs `npm run check` → `npm run build` and
    publishes `dist/` with `actions/deploy-pages`.
 3. **Settings → Pages → Source: GitHub Actions**.
-4. The site is live at <https://jengasadmin.github.io/>.
+4. The site is live at <https://jengasnx.github.io/>.
 
 The workflow caches `.cache/github.json` between runs so builds stay within the
 GitHub API limits.

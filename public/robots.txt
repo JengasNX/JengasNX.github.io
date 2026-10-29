@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jengasadmin.github.io/sitemap-index.xml
+Sitemap: https://jengasnx.github.io/sitemap-index.xml

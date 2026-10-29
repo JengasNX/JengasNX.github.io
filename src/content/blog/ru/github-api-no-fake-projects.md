@@ -11,8 +11,8 @@ tags: ["GitHub API", "TypeScript", "open source"]
 ## Конвейер
 
 ```
-/users/JengasAdmin             → профиль (аватар, счётчики)
-/users/JengasAdmin/repos       → репозитории (форки отбрасываются)
+/users/JengasNX             → профиль (аватар, счётчики)
+/users/JengasNX/repos       → репозитории (форки отбрасываются)
 /repos/…/languages             → байты по языкам
 /repos/…/contents/             → файлы корня: манифесты, .github/, README
 /repos/…/contents/package.json → зависимости → фреймворки и библиотеки

@@ -2,10 +2,10 @@ import type { Dict } from './en';
 
 export const ru: Dict = {
   meta: {
-    siteName: 'JengasAdmin',
-    defaultTitle: 'JengasAdmin — Full Stack Developer',
+    siteName: 'JengasNX',
+    defaultTitle: 'JengasNX — Full Stack Developer',
     defaultDescription:
-      'Портфолио Вячеслава (JengasAdmin), Full Stack Developer. Реальные проекты из GitHub, услуги, статьи и контакты.',
+      'Портфолио Вячеслава (JengasNX), Full Stack Developer. Реальные проекты из GitHub, услуги, статьи и контакты.',
   },
   nav: {
     about: 'Обо мне',
@@ -31,7 +31,7 @@ export const ru: Dict = {
     role: 'Full Stack Developer',
     kicker: 'Портфолио // {year}',
     name: 'Вячеслав',
-    handle: 'JengasAdmin',
+    handle: 'JengasNX',
     description:
       'Создаю современные веб-продукты, цифровые сервисы и полноценные Full Stack решения — от интерфейса и архитектуры до продакшна.',
     viewProjects: 'Смотреть проекты',

@@ -4,8 +4,8 @@ import { glob } from 'astro/loaders';
 
 /**
  * Blog posts live as Markdown files:
- *   src/content/blog/en/*.md  → https://jengasadmin.github.io/blog/<slug>/
- *   src/content/blog/ru/*.md  → https://jengasadmin.github.io/ru/blog/<slug>/
+ *   src/content/blog/en/*.md  → https://jengasnx.github.io/blog/<slug>/
+ *   src/content/blog/ru/*.md  → https://jengasnx.github.io/ru/blog/<slug>/
  * The folder name becomes the locale prefix of the entry id.
  */
 const blog = defineCollection({
